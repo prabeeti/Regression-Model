@@ -1,0 +1,42 @@
+  install.packages("devtools")
+devtools::install_github("jhudsl/collegeIncome")
+library(collegeIncome)
+data(college)
+
+devtools::install_github("jhudsl/matahari")
+library(matahari)
+
+dance_start(value = FALSE, contents = FALSE)
+
+head(college)
+
+# analysis as per gender
+plot1 <- ggplot(aes(perc_employed_fulltime_yearround, major_category, colour=perc_women), data=college)
+plot1 <- plot1 + geom_point(size=2)
+
+#analysis as per median
+plot2 <- ggplot(aes(median, major_category, colour=perc_women), data=college)+geom_point(size=2)
+
+ggmatrix(list(plot1, plot2), ncol=2, nrow=1, legend=grab_legend(plot1), xAxisLabels = c("perc_employed_fulltime_yearround","median, year-round" ))
+
+
+#
+# analysis for Regressions
+fit1 <- lm(median ~ factor(major_category), data=college)
+summary(fit1) 
+
+fit2 <- lm(median ~ factor(major_category) + perc_women, data = college)
+anova(fit1, fit2) 
+
+fit3 <- lm(median ~ perc_women, data = college)
+anova(fit3, fit2)
+
+fit4 <- lm(median ~ factor(major_category)*perc_women, data=college)
+summary(fit4) 
+
+anova(fit3, fit4) 
+
+fit5 <- lm(median ~ major_category*perc_women + perc_college_jobs + perc_employed + perc_low_wage_jobs, data = college)
+summary(fit5)
+
+dance_save("~/college_major_analysis.rds")
